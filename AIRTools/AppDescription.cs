@@ -93,7 +93,7 @@ namespace AIRTools
                 WriteEndDocumentOnClose = false,
                 Indent = true,
                 NewLineOnAttributes = true,
-                IndentChars = "\t",
+                IndentChars = "\t"
             };
             using (var xmlWriter = XmlWriter.Create(stringBuilder, settings))
             {

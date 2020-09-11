@@ -9,16 +9,15 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-
 namespace AIRTools
 {
     public static class Program
     {
-        private static string CurrentDirectory => Directory.GetCurrentDirectory();
+        public static string CurrentDirectory => Directory.GetCurrentDirectory();
         private static AppDescription _appDescription;
         private static string _manifestMergerPath;
         private const string PlistBuddyPath = "/usr/libexec/PlistBuddy";
-        private static string Shell => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "cmd.exe" : "bash";
+        public static string Shell => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "cmd.exe" : "bash";
 
         private static readonly Dictionary<string, Package> DependencyPackage = new Dictionary<string, Package>();
 
@@ -45,20 +44,19 @@ namespace AIRTools
                 return;
             }
 
-            _projectPackage = JsonConvert.DeserializeObject<Package>(await File.ReadAllTextAsync("air_package.json"));
-            PackageResolved.Load();
-
-            Directory.CreateDirectory("libs");
-            Directory.CreateDirectory("extensions");
             Directory.CreateDirectory("tmp");
-
-            GetManifestMerger();
-            LoadAppDescriptor();
 
             var command = args[0];
             switch (command)
             {
                 case "install":
+                    Directory.CreateDirectory("libs");
+                    Directory.CreateDirectory("extensions");
+                    _projectPackage =
+                        JsonConvert.DeserializeObject<Package>(await File.ReadAllTextAsync("air_package.json"));
+                    PackageResolved.Load();
+                    GetManifestMerger();
+                    LoadAppDescriptor();
                     await Install();
                     break;
                 case "apply-firebase-config":
@@ -80,6 +78,16 @@ namespace AIRTools
                     }
 
                     await AddRawAsset(args[1]);
+                    break;
+                case "create-assets-car":
+                    if (args.Length < 2)
+                    {
+                        PrintError(
+                            "You need to pass the path to the 1024x1024px png file.");
+                        return;
+                    }
+
+                    await AssetsCar.Create(args[1]);
                     break;
                 default:
                     PrintError(
@@ -372,11 +380,13 @@ namespace AIRTools
 
             DefaultAndroidManifest.Create();
 
-            var dependencyManifests = DependencyManifest.Select(manifest => manifest.Value.Replace("/", Path.DirectorySeparatorChar.ToString())).ToList();
+            var dependencyManifests = DependencyManifest
+                .Select(manifest => manifest.Value.Replace("/", Path.DirectorySeparatorChar.ToString())).ToList();
             var mergerString =
                 $"{_manifestMergerPath} --main {Path.Join("tmp", "DefaultAndroidManifest.xml")} --libs {string.Join(" --libs ", dependencyManifests)} --out {Path.Join("tmp", "AndroidManifest-merged.xml")} --log ERROR";
-            
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
                 mergerString = $"/c {mergerString}";
             }
 

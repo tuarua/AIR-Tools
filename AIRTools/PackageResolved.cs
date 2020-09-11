@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
@@ -7,11 +6,12 @@ namespace AIRTools
 {
     public static class PackageResolved
     {
-        public static Dictionary<string, string> Dependencies { get; set; }
+        public static Dictionary<string, string> Dependencies { get; private set; }
 
         public static void Save()
         {
-            var json = JsonConvert.SerializeObject(Dependencies);
+            var json = JsonConvert.SerializeObject(Dependencies,
+                new JsonSerializerSettings {Formatting = Formatting.Indented});
             File.WriteAllText("air_package.resolved.json", json);
         }
 
