@@ -2,7 +2,7 @@
 
 Command line tools for common AIR tasks
 
-Download the latest packagfe from [release](https://github.com/tuarua/AIR-Tools/releases)
+Download and install the latest package from [Releases](https://github.com/tuarua/AIR-Tools/releases)
 
 -------------
 
