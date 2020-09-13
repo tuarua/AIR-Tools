@@ -24,6 +24,7 @@ cd "`dirname \"$PRG\"`/.." >/dev/null
 APP_HOME="`pwd -P`"
 cd "$SAVED" >/dev/null
 
+APP_BASE_DIR=`dirname "$PRG"`
 APP_NAME="manifest-merger"
 APP_BASE_NAME=`basename "$0"`
 
@@ -64,7 +65,7 @@ case "`uname`" in
     ;;
 esac
 
-CLASSPATH=$APP_HOME/air-tools-bin/lib/sdk-common-26.0.0-dev.jar:$APP_HOME/air-tools-bin/lib/manifest-merger-26.0.0-dev.jar:$APP_HOME/air-tools-bin/lib/commons-logging-1.1.1.jar:$APP_HOME/air-tools-bin/lib/common-26.0.0-dev.jar
+CLASSPATH=$APP_BASE_DIR/lib/sdk-common-26.0.0-dev.jar:$APP_BASE_DIR/lib/manifest-merger-26.0.0-dev.jar:$APP_BASE_DIR/lib/commons-logging-1.1.1.jar:$APP_BASE_DIR/lib/common-26.0.0-dev.jar
 
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then
