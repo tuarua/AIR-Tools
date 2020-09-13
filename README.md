@@ -2,30 +2,32 @@
 
 Command line tools for common AIR tasks
 
+Download the latest packagfe from [release](https://github.com/tuarua/AIR-Tools/releases)
+
 -------------
 
 Install Dependencies for air_package.json
 
 ```shell
-./AIRTools install
+air-tools install
 ```
 
 Apply Firebase config to FirebaseANE.ane
 
 ```shell
-./AIRTools apply-firebase-config google-services.xml
+air-tools apply-firebase-config google-services.xml
 ```
 
 Add raw assets to FirebaseANE.ane
 
 ```shell
-./AIRTools add-raw-asset alert.mp3
+air-tools add-raw-asset alert.mp3
 ```
 
 Create Assets.car from icon
 
 ```shell
-./AIRTools create-assets-car icon_1024x1024.png
+air-tools create-assets-car icon_1024x1024.png
 ```
 
 ### Prerequisites

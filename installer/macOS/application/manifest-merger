@@ -64,8 +64,6 @@ case "`uname`" in
     ;;
 esac
 
-echo $APP_HOME
-
 CLASSPATH=$APP_HOME/air-tools-bin/lib/sdk-common-26.0.0-dev.jar:$APP_HOME/air-tools-bin/lib/manifest-merger-26.0.0-dev.jar:$APP_HOME/air-tools-bin/lib/commons-logging-1.1.1.jar:$APP_HOME/air-tools-bin/lib/common-26.0.0-dev.jar
 
 # Determine the Java command to use to start the JVM.

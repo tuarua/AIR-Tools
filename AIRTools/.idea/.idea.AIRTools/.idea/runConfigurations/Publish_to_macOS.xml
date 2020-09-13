@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Publish to macOS" type="DotNetFolderPublish" factoryName="Publish to folder">
-    <riderPublish runtime="osx-x64" target_folder="$PROJECT_DIR$/../air-tools-bin" target_framework="netcoreapp3.1" uuid_high="-4108614185626022131" uuid_low="-7847677700286727997" />
+    <riderPublish runtime="osx-x64" target_folder="$PROJECT_DIR$/../installer/macOS/application" target_framework="netcoreapp3.1" uuid_high="-4108614185626022131" uuid_low="-7847677700286727997" />
     <method v="2" />
   </configuration>
 </component>
