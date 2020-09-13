@@ -383,7 +383,7 @@ namespace AIRTools
             var dependencyManifests = DependencyManifest
                 .Select(manifest => manifest.Value.Replace("/", Path.DirectorySeparatorChar.ToString())).ToList();
             var mergerString =
-                $"{_manifestMergerPath} --main {Path.Join("tmp", "DefaultAndroidManifest.xml")} --libs {string.Join(" --libs ", dependencyManifests)} --out {Path.Join("tmp", "AndroidManifest-merged.xml")} --log ERROR";
+                $"\"{_manifestMergerPath}\" --main {Path.Join("tmp", "DefaultAndroidManifest.xml")} --libs {string.Join(" --libs ", dependencyManifests)} --out {Path.Join("tmp", "AndroidManifest-merged.xml")} --log ERROR";
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -539,10 +539,12 @@ namespace AIRTools
 
         private static void GetManifestMerger()
         {
+            var exeFolder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName);
             var manifestMerger = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? "manifest-merger.bat"
-                : "manifest-merger";
-            _manifestMergerPath = Path.Join(CurrentDirectory, "..", "air-tools-bin", manifestMerger);
+                ? Path.Join(exeFolder, "manifest-merger.bat")
+                : Path.Join(exeFolder, "manifest-merger"); 
+
+            _manifestMergerPath = manifestMerger;
         }
 
         private static bool HasPlistBuddy => File.Exists(PlistBuddyPath);
