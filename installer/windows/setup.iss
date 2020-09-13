@@ -234,6 +234,7 @@ Name: envPath; Description: "Add to PATH variable"
 
 [Files]
 Source: "src\*.*"; DestDir: "{app}"; Flags: replacesameversion
+Source: "src\lib\*.*"; DestDir: "{app}\lib"; Flags: replacesameversion recursesubdirs
 
 [Icons]
 Name: "{group}\{#MyAppSetupName}"; Filename: "{app}\air-tools.exe"
