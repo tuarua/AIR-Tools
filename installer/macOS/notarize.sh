@@ -1,9 +1,7 @@
 #!/bin/bash
 
 # Certificates and signing.
-APP_KEY="Developer ID Application: Xxx Xxxx (XXXXXXXXXX)"
 INSTALLER_KEY="Developer ID Installer: Xxx Xxxx (XXXXXXXXXX)"
-PROVISION_PROFILE="DeveloperIdApplication.provisionprofile"
 
 # from https://appleid.apple.com/#!&page=signin  > Security > APP-SPECIFIC PASSWORDS > Generate password…
 TWO_FAC_UN="xx@xxx.com"

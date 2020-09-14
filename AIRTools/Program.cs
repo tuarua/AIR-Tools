@@ -17,7 +17,7 @@ namespace AIRTools
         private static AppDescription _appDescription;
         private static string _manifestMergerPath;
         private const string PlistBuddyPath = "/usr/libexec/PlistBuddy";
-        public static string Shell => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "cmd.exe" : "bash";
+        private static string Shell => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "cmd.exe" : "bash";
 
         private static readonly Dictionary<string, Package> DependencyPackage = new Dictionary<string, Package>();
 
@@ -306,8 +306,12 @@ namespace AIRTools
 
                     break;
                 case ".ane":
-                    Extensions.Add(packageId);
-                    await ExtractAneFiles(packageId, fileName);
+                    // ANEs can contain same dependencies, so prevent duplicates
+                    if (!Extensions.Contains(packageId))
+                    {
+                        Extensions.Add(packageId);
+                        await ExtractAneFiles(packageId, fileName);
+                    }
                     break;
             }
         }

@@ -15,7 +15,7 @@ air-tools install
 Apply Firebase config to FirebaseANE.ane
 
 ```shell
-air-tools apply-firebase-config google-services.xml
+air-tools apply-firebase-config google-services.json
 ```
 
 Add raw assets to FirebaseANE.ane

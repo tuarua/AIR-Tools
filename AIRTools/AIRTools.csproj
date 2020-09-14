@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <None Remove="air_package.json" />
-      <Content Include="air_package.json" />
     </ItemGroup>
 
     <ItemGroup>
