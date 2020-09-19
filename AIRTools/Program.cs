@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -38,12 +39,20 @@ namespace AIRTools
 
         private static async Task Main(string[] args)
         {
+
             if (args.Length == 0)
             {
                 PrintError("Pass the command as an argument");
                 return;
             }
 
+            var appDataFolder = GetAppDataFolder();
+
+            if (!string.IsNullOrEmpty(appDataFolder))
+            {
+                Directory.CreateDirectory(appDataFolder);
+            }
+            
             Directory.CreateDirectory("tmp");
 
             var command = args[0];
@@ -58,6 +67,13 @@ namespace AIRTools
                     GetManifestMerger();
                     LoadAppDescriptor();
                     await Install();
+                    break;
+                case "clear-cache":
+                    if (!string.IsNullOrEmpty(appDataFolder))
+                    {
+                        Directory.Delete(appDataFolder, true);
+                        Directory.CreateDirectory(appDataFolder);
+                    }
                     break;
                 case "apply-firebase-config":
                     if (args.Length < 2)
@@ -181,14 +197,14 @@ namespace AIRTools
 
         private static async Task ParseDependencies(Package package)
         {
-            foreach (var (key, value) in package.Dependencies)
+            foreach (var (packageId, value) in package.Dependencies)
             {
                 if (value.StartsWith("http"))
                 {
                     try
                     {
                         await DownloadDependency(value);
-                        await ProcessDependency(key, GetFileNameFromUrl(value));
+                        await ProcessDependency(packageId, GetFileNameFromUrl(value));
                     }
                     catch (Exception e)
                     {
@@ -206,12 +222,13 @@ namespace AIRTools
                         ".swc" => "libs",
                         _ => ""
                     };
-                    if (Path.GetFullPath(path) != $"{CurrentDirectory}/{outputFolder}/{fn}")
+                    
+                    if (Path.GetFullPath(path) != Path.Combine(CurrentDirectory, outputFolder, fn))
                     {
-                        File.Copy(path, $"{outputFolder}/{fn}");
+                        File.Copy(path, Path.Combine(outputFolder, fn));
                     }
 
-                    await ProcessDependency(key, GetFileNameFromUrl(value));
+                    await ProcessDependency(packageId, GetFileNameFromUrl(value));
                 }
                 else
                 {
@@ -219,7 +236,7 @@ namespace AIRTools
                     if (string.IsNullOrEmpty(repoUrl))
                     {
                         PrintError(
-                            $"The {key} package file references versioned dependencies but has no repository url");
+                            $"The {packageId} package file references versioned dependencies but has no repository url");
                         return;
                     }
 
@@ -232,30 +249,30 @@ namespace AIRTools
                     }
 
                     var packages = RepositoryDict[repoUrl];
-                    if (!packages.ContainsKey(key))
+                    if (!packages.ContainsKey(packageId))
                     {
-                        PrintError($"Cannot find package for: {key}");
+                        PrintError($"Cannot find package for: {packageId}");
                         return;
                     }
 
-                    if (!packages[key].ContainsKey(value))
+                    if (!packages[packageId].ContainsKey(value))
                     {
-                        PrintError($"Cannot find url for: {key} {value}");
+                        PrintError($"Cannot find url for: {packageId} {value}");
                         return;
                     }
 
-                    var url = packages[key][value];
+                    var url = packages[packageId][value];
 
-                    if (PackageResolved.IsCurrent(key, value))
+                    if (PackageResolved.IsCurrent(packageId, value))
                     {
-                        PrintInfo($"Using cached version of {key} version {value}");
+                        PrintInfo($"Using existing version of {packageId} version {value}");
                     }
                     else
                     {
-                        var previousVersion = PackageResolved.PreviousVersion(key);
+                        var previousVersion = PackageResolved.PreviousVersion(packageId);
                         if (!string.IsNullOrEmpty(previousVersion))
                         {
-                            var previousUrl = packages[key][previousVersion];
+                            var previousUrl = packages[packageId][previousVersion];
                             var previousFileName = GetFileNameFromUrl(previousUrl);
                             var fileType = Path.GetExtension(previousFileName);
                             var outputFolder = fileType switch
@@ -264,19 +281,42 @@ namespace AIRTools
                                 ".swc" => "libs",
                                 _ => ""
                             };
+                            var previousFilePath = Path.Combine(outputFolder, previousFileName);
 
                             if (!string.IsNullOrEmpty(previousFileName) &&
-                                File.Exists($"{outputFolder}/{previousFileName}"))
+                                File.Exists(previousFilePath))
                             {
-                                File.Delete($"{outputFolder}/{previousFileName}");
+                                File.Delete(previousFilePath);
                             }
-                            PrintInfo($"Upgrading: {key} from {previousVersion} to {value}");
+
+                            PrintInfo($"Upgrading: {packageId} from {previousVersion} to {value}");
                         }
 
                         try
                         {
-                            await DownloadDependency(url);
-                            PackageResolved.Update(key, value);
+                            var fileName = GetFileNameFromUrl(url);
+                            var fileType = Path.GetExtension(fileName);
+                            if (!string.IsNullOrEmpty(GetAppDataFolder())) // hasAppDataFolder
+                            {
+                                if (!File.Exists(Path.Combine(GetAppDataFolder(), packageId, value, fileName)))
+                                {
+                                    await DownloadDependencyToShared(url, packageId, value);
+                                }
+                                var outputFolder = fileType switch
+                                {
+                                    ".ane" => "extensions",
+                                    ".swc" => "libs",
+                                    _ => ""
+                                };
+                                PrintInfo($"Using cached AppData version of {packageId} version {value}");
+                                File.Copy(Path.Combine(GetAppDataFolder(), packageId, value, fileName), Path.Combine(outputFolder, fileName), true);
+                            }
+                            else
+                            {
+                                await DownloadDependency(url);
+                            }
+
+                            PackageResolved.Update(packageId, value);
                             PackageResolved.Save();
                         }
                         catch (Exception e)
@@ -285,7 +325,7 @@ namespace AIRTools
                         }
                     }
 
-                    await ProcessDependency(key, GetFileNameFromUrl(url));
+                    await ProcessDependency(packageId, GetFileNameFromUrl(url));
                 }
             }
         }
@@ -301,17 +341,19 @@ namespace AIRTools
                 ".swc" => "libs",
                 _ => ""
             };
-
             var client = new HttpClient();
             var response = await client.GetByteArrayAsync(new Uri(url));
-            if (outputFolder == "")
-            {
-                await File.WriteAllBytesAsync($"{fileName}", response);
-            }
-            else
-            {
-                await File.WriteAllBytesAsync($"{outputFolder}/{fileName}", response);
-            }
+            await File.WriteAllBytesAsync(Path.Combine(outputFolder, fileName), response);
+        }
+
+        private static async Task DownloadDependencyToShared(string url, string packageId, string version)
+        {
+            PrintInfo($"Downloading: {url} to AppData folder");
+            var fileName = GetFileNameFromUrl(url);
+            var client = new HttpClient();
+            var response = await client.GetByteArrayAsync(new Uri(url));
+            Directory.CreateDirectory(Path.Combine(GetAppDataFolder(), packageId, version));
+            await File.WriteAllBytesAsync(Path.Combine(GetAppDataFolder(), packageId, version, fileName), response);
         }
 
         private static async Task ProcessDependency(string packageId, string fileName)
@@ -567,7 +609,7 @@ namespace AIRTools
             var exeFolder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName);
             var manifestMerger = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 ? Path.Join(exeFolder, "manifest-merger.bat")
-                : Path.Join(exeFolder, "manifest-merger"); 
+                : Path.Join(exeFolder, "manifest-merger");
 
             _manifestMergerPath = manifestMerger;
         }
@@ -575,5 +617,23 @@ namespace AIRTools
         private static bool HasPlistBuddy => File.Exists(PlistBuddyPath);
 
         private static string GetFileNameFromUrl(string url) => Path.GetFileName(url).Split("?").First();
+
+        private static string GetAppDataFolder()
+        {
+            var userPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            if (string.IsNullOrEmpty(userPath))
+            {
+                return null;
+            }
+
+            var assemblyName = Assembly.GetEntryAssembly()?.GetName().Name;
+            if (string.IsNullOrEmpty(assemblyName))
+            {
+                return null;
+            }
+
+            var path = Path.Combine(userPath, assemblyName);
+            return path;
+        }
     }
 }
