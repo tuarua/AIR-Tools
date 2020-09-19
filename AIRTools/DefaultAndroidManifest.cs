@@ -25,7 +25,7 @@ namespace AIRTools
 
             XmlNode usesSdk = doc.CreateElement("uses-sdk");
             var minSdkVersion = doc.CreateAttribute("android", "minSdkVersion", androidNs);
-            minSdkVersion.Value = "19";
+            minSdkVersion.Value = "21";
             usesSdk.Attributes.Append(minSdkVersion);
             var targetSdkVersion = doc.CreateAttribute("android", "targetSdkVersion", androidNs);
             targetSdkVersion.Value = "28";

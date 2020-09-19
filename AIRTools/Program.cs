@@ -246,12 +246,33 @@ namespace AIRTools
 
                     var url = packages[key][value];
 
-                    if (PackageResolved.Dependencies.ContainsKey(key) && PackageResolved.Dependencies[key] == value)
+                    if (PackageResolved.IsCurrent(key, value))
                     {
                         PrintInfo($"Using cached version of {key} version {value}");
                     }
                     else
                     {
+                        var previousVersion = PackageResolved.PreviousVersion(key);
+                        if (!string.IsNullOrEmpty(previousVersion))
+                        {
+                            var previousUrl = packages[key][previousVersion];
+                            var previousFileName = GetFileNameFromUrl(previousUrl);
+                            var fileType = Path.GetExtension(previousFileName);
+                            var outputFolder = fileType switch
+                            {
+                                ".ane" => "extensions",
+                                ".swc" => "libs",
+                                _ => ""
+                            };
+
+                            if (!string.IsNullOrEmpty(previousFileName) &&
+                                File.Exists($"{outputFolder}/{previousFileName}"))
+                            {
+                                File.Delete($"{outputFolder}/{previousFileName}");
+                            }
+                            PrintInfo($"Upgrading: {key} from {previousVersion} to {value}");
+                        }
+
                         try
                         {
                             await DownloadDependency(url);

@@ -6,7 +6,7 @@ namespace AIRTools
 {
     public static class PackageResolved
     {
-        public static Dictionary<string, string> Dependencies { get; private set; }
+        private static Dictionary<string, string> Dependencies { get; set; }
 
         public static void Save()
         {
@@ -32,5 +32,10 @@ namespace AIRTools
                 JsonConvert.DeserializeObject<Dictionary<string, string>>(
                     File.ReadAllText("air_package.resolved.json"));
         }
+
+        public static bool IsCurrent(string key, string version) =>
+            Dependencies.ContainsKey(key) && Dependencies[key] == version;
+
+        public static string PreviousVersion(string key) => Dependencies.ContainsKey(key) ? Dependencies[key] : null;
     }
 }
