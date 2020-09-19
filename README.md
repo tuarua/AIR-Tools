@@ -12,6 +12,12 @@ Install Dependencies for air_package.json
 air-tools install
 ```
 
+Clear Installed Dependencies from AppData cache folder
+
+```shell
+air-tools clear-cache
+```
+
 Apply Firebase config to FirebaseANE.ane
 
 ```shell
