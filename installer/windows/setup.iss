@@ -191,7 +191,7 @@
 
 // setup
 #define MyAppSetupName 'AIR-Tools'
-#define MyAppVersion '1.0.0'
+#define MyAppVersion '1.1.0'
 #define MyAppPublisher 'tuarua'
 #define MyAppCopyright 'Copyright © Tua Rua Ltd.'
 #define MyAppURL 'https://github.com/tuarua/AIR-Tools'
