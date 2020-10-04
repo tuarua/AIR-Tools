@@ -13,7 +13,7 @@ namespace AIRTools
     {
         private static XmlDocument _doc;
 
-        public static async Task FromJson(string path)
+        public static async Task FromJson(string path, bool addToAne = true)
         {
             var googleServices =
                 JsonConvert.DeserializeObject<Dictionary<string, object>>(await File.ReadAllTextAsync(path));
@@ -110,41 +110,50 @@ namespace AIRTools
             rootNode.AppendChild(node9);
 
             _doc.AppendChild(rootNode);
-            _doc.Save("tmp/values.xml");
 
-            const string fn = "FirebaseANE";
-            var anePath = $"extensions/{fn}.ane";
-            var zipPath = Path.ChangeExtension(anePath, "zip");
-
-            File.Move(anePath, zipPath, true);
-            try
+            if (addToAne)
             {
-                await using var zipToOpen = new FileStream(zipPath, FileMode.Open);
-                using var archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update);
+                _doc.Save("tmp/values.xml");
 
-                archive.GetEntry("META-INF/ANE/Android-ARM/com.tuarua.firebase.FirebaseANE-res/values/values.xml")
-                    ?.Delete();
-                archive.GetEntry("META-INF/ANE/Android-ARM64/com.tuarua.firebase.FirebaseANE-res/values/values.xml")
-                    ?.Delete();
-                archive.GetEntry("META-INF/ANE/Android-x86/com.tuarua.firebase.FirebaseANE-res/values/values.xml")
-                    ?.Delete();
+                const string fn = "FirebaseANE";
+                var anePath = $"extensions/{fn}.ane";
+                var zipPath = Path.ChangeExtension(anePath, "zip");
 
-                archive.CreateEntryFromFile("tmp/values.xml",
-                    "META-INF/ANE/Android-ARM/com.tuarua.firebase.FirebaseANE-res/values/values.xml",
-                    CompressionLevel.NoCompression);
-                archive.CreateEntryFromFile("tmp/values.xml",
-                    "META-INF/ANE/Android-ARM64/com.tuarua.firebase.FirebaseANE-res/values/values.xml",
-                    CompressionLevel.NoCompression);
-                archive.CreateEntryFromFile("tmp/values.xml",
-                    "META-INF/ANE/Android-x86/com.tuarua.firebase.FirebaseANE-res/values/values.xml",
-                    CompressionLevel.NoCompression);
+                File.Move(anePath, zipPath, true);
+                try
+                {
+                    await using var zipToOpen = new FileStream(zipPath, FileMode.Open);
+                    using var archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update);
+
+                    archive.GetEntry("META-INF/ANE/Android-ARM/com.tuarua.firebase.FirebaseANE-res/values/values.xml")
+                        ?.Delete();
+                    archive.GetEntry("META-INF/ANE/Android-ARM64/com.tuarua.firebase.FirebaseANE-res/values/values.xml")
+                        ?.Delete();
+                    archive.GetEntry("META-INF/ANE/Android-x86/com.tuarua.firebase.FirebaseANE-res/values/values.xml")
+                        ?.Delete();
+
+                    archive.CreateEntryFromFile("tmp/values.xml",
+                        "META-INF/ANE/Android-ARM/com.tuarua.firebase.FirebaseANE-res/values/values.xml",
+                        CompressionLevel.NoCompression);
+                    archive.CreateEntryFromFile("tmp/values.xml",
+                        "META-INF/ANE/Android-ARM64/com.tuarua.firebase.FirebaseANE-res/values/values.xml",
+                        CompressionLevel.NoCompression);
+                    archive.CreateEntryFromFile("tmp/values.xml",
+                        "META-INF/ANE/Android-x86/com.tuarua.firebase.FirebaseANE-res/values/values.xml",
+                        CompressionLevel.NoCompression);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                File.Move(zipPath, anePath, true);
             }
-            catch (Exception e)
+            else
             {
-                Console.WriteLine(e);
+                Directory.CreateDirectory("res/values");
+                _doc.Save("res/values/values.xml");
             }
-
-            File.Move(zipPath, anePath, true);
         }
 
         private static XmlAttribute GetTranslatableAttribute()
