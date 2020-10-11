@@ -136,7 +136,7 @@ namespace AIRTools
         {
             foreach (var anePath in Directory.EnumerateFiles("extensions"))
             {
-                if (Path.GetExtension(anePath) != "ane") continue;
+                if (Path.GetExtension(anePath) != ".ane") continue;
                 var zipPath = Path.ChangeExtension(anePath, "zip");
                 File.Move(anePath, zipPath, true);
 
