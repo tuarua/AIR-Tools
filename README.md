@@ -18,6 +18,18 @@ Clear Installed Dependencies from AppData cache folder
 air-tools clear-cache
 ```
 
+Removes air-tools config files eg air_package.json, AndroidManifest.xml from extensions/*.ane
+
+```shell
+air-tools clear-config
+```
+
+Creates a values.xml from the provided google-services.json
+
+```shell
+air-tools convert-firebase-config google-services.json
+```
+
 Apply Firebase config to FirebaseANE.ane
 
 ```shell

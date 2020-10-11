@@ -10,6 +10,10 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
+// TODO check for updates
+// TODO start-screens?
+// TODO storyboardc?
+
 namespace AIRTools
 {
     public static class Program
@@ -39,7 +43,6 @@ namespace AIRTools
 
         private static async Task Main(string[] args)
         {
-
             if (args.Length == 0)
             {
                 PrintError("Pass the command as an argument");
@@ -52,7 +55,7 @@ namespace AIRTools
             {
                 Directory.CreateDirectory(appDataFolder);
             }
-            
+
             Directory.CreateDirectory("tmp");
 
             var command = args[0];
@@ -68,12 +71,16 @@ namespace AIRTools
                     LoadAppDescriptor();
                     await Install();
                     break;
+                case "clear-config":
+                    await ClearConfig();
+                    break;
                 case "clear-cache":
                     if (!string.IsNullOrEmpty(appDataFolder))
                     {
                         Directory.Delete(appDataFolder, true);
                         Directory.CreateDirectory(appDataFolder);
                     }
+
                     break;
                 case "apply-firebase-config":
                     if (args.Length < 2)
@@ -85,11 +92,20 @@ namespace AIRTools
 
                     await ApplyFirebaseConfig(args[1]);
                     break;
-                case "add-raw-asset":
+                case "convert-firebase-config":
                     if (args.Length < 2)
                     {
                         PrintError(
-                            "You need to pass the path to the file after `add-raw-asset`.");
+                            "You need to pass the path to the google-services.json file after `convert-firebase-config`.");
+                        return;
+                    }
+
+                    await ConvertFirebaseConfig(args[1]);
+                    break;
+                case "add-raw-asset":
+                    if (args.Length < 2)
+                    {
+                        PrintError("You need to pass the path to the file after `add-raw-asset`.");
                         return;
                     }
 
@@ -106,12 +122,32 @@ namespace AIRTools
                     await AssetsCar.Create(args[1]);
                     break;
                 default:
-                    PrintError(
-                        "Command not recognized.");
+                    PrintError("Command not recognized.");
                     break;
             }
 
             Directory.Delete("tmp", true);
+        }
+
+        /**
+         * Removes air-tools config files eg air_package.json, AndroidManifest.xml from extensions/*.ane
+         */
+        private static async Task ClearConfig()
+        {
+            foreach (var anePath in Directory.EnumerateFiles("extensions"))
+            {
+                if (Path.GetExtension(anePath) != ".ane") continue;
+                var zipPath = Path.ChangeExtension(anePath, "zip");
+                File.Move(anePath, zipPath, true);
+
+                await using var zipToOpen = new FileStream(zipPath, FileMode.Open);
+                using var archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update);
+                archive.GetEntry("AndroidManifest.xml")?.Delete();
+                archive.GetEntry("InfoAdditions.plist")?.Delete();
+                archive.GetEntry("Entitlements.entitlements")?.Delete();
+                archive.GetEntry("air_package.json")?.Delete();
+                File.Move(zipPath, anePath, true);
+            }
         }
 
         /**
@@ -147,11 +183,22 @@ namespace AIRTools
             await GoogleServices.FromJson(path);
         }
 
+        /*
+         * Creates a values.xml from the provided google-services.json
+         */
+        private static async Task ConvertFirebaseConfig(string path)
+        {
+            await GoogleServices.FromJson(path, false);
+        }
+
         /**
          * Adds a raw asset to Firebase.ANE for Android
          */
         private static async Task AddRawAsset(string path)
         {
+            PrintInfo("AIR SDK v33.1.1.259 now allows developers to add a 'res' folder themselves. " +
+                      "See release notes for more details.");
+
             if (!File.Exists("extensions/FirebaseANE.ane"))
             {
                 PrintError("You do not have FirebaseANE.ane inside the extensions folder.");
@@ -222,7 +269,7 @@ namespace AIRTools
                         ".swc" => "libs",
                         _ => ""
                     };
-                    
+
                     if (Path.GetFullPath(path) != Path.Combine(CurrentDirectory, outputFolder, fn))
                     {
                         File.Copy(path, Path.Combine(outputFolder, fn));
@@ -302,6 +349,7 @@ namespace AIRTools
                                 {
                                     await DownloadDependencyToShared(url, packageId, value);
                                 }
+
                                 var outputFolder = fileType switch
                                 {
                                     ".ane" => "extensions",
@@ -309,7 +357,8 @@ namespace AIRTools
                                     _ => ""
                                 };
                                 PrintInfo($"Using cached AppData version of {packageId} version {value}");
-                                File.Copy(Path.Combine(GetAppDataFolder(), packageId, value, fileName), Path.Combine(outputFolder, fileName), true);
+                                File.Copy(Path.Combine(GetAppDataFolder(), packageId, value, fileName),
+                                    Path.Combine(outputFolder, fileName), true);
                             }
                             else
                             {
@@ -375,6 +424,7 @@ namespace AIRTools
                         Extensions.Add(packageId);
                         await ExtractAneFiles(packageId, fileName);
                     }
+
                     break;
             }
         }
