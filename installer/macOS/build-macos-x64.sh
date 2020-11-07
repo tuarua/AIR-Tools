@@ -15,7 +15,7 @@ function printUsage() {
   echo "  -h (--help)"
   echo
   echo -e "\033[1mExample::\033[0m"
-  echo "$0 air-tools 1.0.0"
+  echo "$0 air-tools 1.3.0"
 
 }
 
