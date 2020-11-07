@@ -25,15 +25,7 @@ namespace AIRTools
             var key = doc.CreateElement("key");
             key.InnerText = "UIDeviceFamily";
             dict.AppendChild(key);
-            
-            var key2 = doc.CreateElement("key");
-            key2.InnerText = "MinimumOSVersion";
-            dict.AppendChild(key2);
-            
-            var stringVersion = doc.CreateElement("string");
-            stringVersion.InnerText = "9.0";
-            dict.AppendChild(stringVersion);
-            
+
             var array = doc.CreateElement("array");
             var string1 = doc.CreateElement("string");
             string1.InnerText = "1";
@@ -43,6 +35,15 @@ namespace AIRTools
             array.AppendChild(string1);
             array.AppendChild(string2);
             dict.AppendChild(array);
+            
+            var key2 = doc.CreateElement("key");
+            key2.InnerText = "MinimumOSVersion";
+            dict.AppendChild(key2);
+            
+            var stringVersion = doc.CreateElement("string");
+            stringVersion.InnerText = "9.0";
+            dict.AppendChild(stringVersion);
+            
             rootNode.AppendChild(dict);
             
             doc.AppendChild(rootNode);
