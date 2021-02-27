@@ -26,58 +26,58 @@ namespace AIRTools
             XmlNode usesSdk = doc.CreateElement("uses-sdk");
             var minSdkVersion = doc.CreateAttribute("android", "minSdkVersion", androidNs);
             minSdkVersion.Value = "21";
-            usesSdk.Attributes.Append(minSdkVersion);
+            usesSdk.Attributes?.Append(minSdkVersion);
             var targetSdkVersion = doc.CreateAttribute("android", "targetSdkVersion", androidNs);
             targetSdkVersion.Value = "28";
-            usesSdk.Attributes.Append(targetSdkVersion);
+            usesSdk.Attributes?.Append(targetSdkVersion);
             rootNode.AppendChild(usesSdk);
 
             XmlNode usesPermission = doc.CreateElement("uses-permission");
             var internet = doc.CreateAttribute("android", "name", androidNs);
             internet.Value = "android.permission.INTERNET";
-            usesPermission.Attributes.Append(internet);
+            usesPermission.Attributes?.Append(internet);
             rootNode.AppendChild(usesPermission);
 
             XmlNode application = doc.CreateElement("application");
             var enabled = doc.CreateAttribute("android", "enabled", androidNs);
             enabled.Value = "true";
-            application.Attributes.Append(enabled);
+            application.Attributes?.Append(enabled);
 
             XmlNode metaData = doc.CreateElement("meta-data");
             var aspectRatio = doc.CreateAttribute("android", "name", androidNs);
             aspectRatio.Value = "android.max_aspect";
-            metaData.Attributes.Append(aspectRatio);
+            metaData.Attributes?.Append(aspectRatio);
             var aspectRatioVal = doc.CreateAttribute("android", "value", androidNs);
             aspectRatioVal.Value = "2.1";
-            metaData.Attributes.Append(aspectRatioVal);
+            metaData.Attributes?.Append(aspectRatioVal);
             application.AppendChild(metaData);
 
             XmlNode activity = doc.CreateElement("activity");
             var name = doc.CreateAttribute("android", "name", androidNs);
             name.Value = "mainActivity";
-            activity.Attributes.Append(name);
+            activity.Attributes?.Append(name);
 
             var excludeFromRecents = doc.CreateAttribute("android", "excludeFromRecents", androidNs);
             excludeFromRecents.Value = "false";
-            activity.Attributes.Append(excludeFromRecents);
+            activity.Attributes?.Append(excludeFromRecents);
 
             var hardwareAccelerated = doc.CreateAttribute("android", "hardwareAccelerated", androidNs);
             hardwareAccelerated.Value = "true";
-            activity.Attributes.Append(hardwareAccelerated);
+            activity.Attributes?.Append(hardwareAccelerated);
 
             XmlNode intentFilter = doc.CreateElement("intent-filter");
 
             XmlNode action = doc.CreateElement("action");
             var intentName = doc.CreateAttribute("android", "name", androidNs);
             intentName.Value = "android.intent.action.MAIN";
-            action.Attributes.Append(intentName);
+            action.Attributes?.Append(intentName);
 
             intentFilter.AppendChild(action);
 
             XmlNode category = doc.CreateElement("category");
             var categoryName = doc.CreateAttribute("android", "name", androidNs);
             categoryName.Value = "android.intent.category.LAUNCHER";
-            category.Attributes.Append(categoryName);
+            category.Attributes?.Append(categoryName);
 
             intentFilter.AppendChild(category);
 

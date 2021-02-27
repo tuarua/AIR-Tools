@@ -40,28 +40,28 @@ namespace AIRTools
             XmlNode node1 = _doc.CreateElement("string");
             var attr1 = _doc.CreateAttribute("name");
             attr1.Value = "app_name";
-            node1.Attributes.Append(attr1);
+            node1.Attributes?.Append(attr1);
             node1.InnerText = "FirebaseANE";
 
             XmlNode node2 = _doc.CreateElement("string");
             var attr2 = _doc.CreateAttribute("name");
             attr2.Value = "default_web_client_id";
-            node2.Attributes.Append(attr2);
-            node2.Attributes.Append(GetTranslatableAttribute());
-            node2.InnerText = clientId;
+            node2.Attributes?.Append(attr2);
+            node2.Attributes?.Append(GetTranslatableAttribute());
+            node2.InnerText = clientId ?? string.Empty;
 
             XmlNode node3 = _doc.CreateElement("string");
-            node3.InnerText = firebaseUrl;
+            node3.InnerText = firebaseUrl ?? string.Empty;
             var attr3 = _doc.CreateAttribute("name");
             attr3.Value = "firebase_database_url";
-            node3.Attributes.Append(attr3);
-            node3.Attributes.Append(GetTranslatableAttribute());
+            node3.Attributes?.Append(attr3);
+            node3.Attributes?.Append(GetTranslatableAttribute());
 
             XmlNode node4 = _doc.CreateElement("string");
-            node4.InnerText = projectNumber;
+            node4.InnerText = projectNumber ?? string.Empty;
             var attr4 = _doc.CreateAttribute("name");
             attr4.Value = "gcm_defaultSenderId";
-            node4.Attributes.Append(attr4);
+            node4.Attributes?.Append(attr4);
             node4.Attributes.Append(GetTranslatableAttribute());
 
             XmlNode node5 = _doc.CreateElement("string");

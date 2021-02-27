@@ -318,7 +318,7 @@ namespace AIRTools
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    class AssetsCarJson
+    internal class AssetsCarJson
     {
         public List<Dictionary<string, string>> images { get; set; }
         // ReSharper disable once UnusedAutoPropertyAccessor.Global

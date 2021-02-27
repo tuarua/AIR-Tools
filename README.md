@@ -48,6 +48,12 @@ Create Assets.car from icon
 air-tools create-assets-car icon_1024x1024.png
 ```
 
+Create icons/*.png from icon and add to app XML
+
+```shell
+air-tools create-icons icon_1024x1024.png src/Main-app.xml
+```
+
 ### Prerequisites
 
 You will need

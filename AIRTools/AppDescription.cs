@@ -16,7 +16,7 @@ namespace AIRTools
             _doc.Load(path);
             _node = _doc.DocumentElement;
 
-            Id = _node["id"]?.FirstChild.Value;
+            Id = _node?["id"]?.FirstChild.Value;
         }
 
         public void UpdateManifestAdditions(string xmlStr)
@@ -53,16 +53,16 @@ namespace AIRTools
             XmlNode androidNode;
             if (androidNodeTest == null)
             {
-                androidNode = _doc.CreateElement("android", _doc.DocumentElement.NamespaceURI);
-                _doc.DocumentElement.AppendChild(androidNode);
+                androidNode = _doc.CreateElement("android", _doc.DocumentElement?.NamespaceURI);
+                _doc.DocumentElement?.AppendChild(androidNode);
             }
 
             androidNode = _node["android"];
-            var manifestAdditionsNodeTest = androidNode["manifestAdditions"];
+            var manifestAdditionsNodeTest = androidNode?["manifestAdditions"];
             if (manifestAdditionsNodeTest == null)
             {
-                var manifestAdditionsNode = _doc.CreateElement("manifestAdditions", _doc.DocumentElement.NamespaceURI);
-                androidNode.AppendChild(manifestAdditionsNode);
+                var manifestAdditionsNode = _doc.CreateElement("manifestAdditions", _doc.DocumentElement?.NamespaceURI);
+                androidNode?.AppendChild(manifestAdditionsNode);
             }
 
             _node["android"]["manifestAdditions"].InnerXml = cdata.OuterXml;
@@ -105,7 +105,7 @@ namespace AIRTools
             var infoAdditionsNodeTest = iPhoneNode["InfoAdditions"];
             if (infoAdditionsNodeTest == null)
             {
-                var infoAdditionsNode = _doc.CreateElement("InfoAdditions", _doc.DocumentElement.NamespaceURI);
+                var infoAdditionsNode = _doc.CreateElement("InfoAdditions", _doc.DocumentElement?.NamespaceURI);
                 iPhoneNode.AppendChild(infoAdditionsNode);
             }
 
@@ -119,11 +119,11 @@ namespace AIRTools
             XmlNode iPhoneNode;
             if (iPhoneNodeTest == null)
             {
-                iPhoneNode = _doc.CreateElement("iPhone", _doc.DocumentElement.NamespaceURI);
-                var requestedDisplayResolutionNode = _doc.CreateElement("requestedDisplayResolution", _doc.DocumentElement.NamespaceURI);
+                iPhoneNode = _doc.CreateElement("iPhone", _doc.DocumentElement?.NamespaceURI);
+                var requestedDisplayResolutionNode = _doc.CreateElement("requestedDisplayResolution", _doc.DocumentElement?.NamespaceURI);
                 requestedDisplayResolutionNode.InnerText = "high";
                 iPhoneNode.AppendChild(requestedDisplayResolutionNode);
-                _doc.DocumentElement.AppendChild(iPhoneNode);
+                _doc.DocumentElement?.AppendChild(iPhoneNode);
             }
 
             iPhoneNode = _node["iPhone"];
@@ -169,7 +169,7 @@ namespace AIRTools
             var entitlementsNodeTest = iPhoneNode["Entitlements"];
             if (entitlementsNodeTest == null)
             {
-                var entitlementsNode = _doc.CreateElement("Entitlements", _doc.DocumentElement.NamespaceURI);
+                var entitlementsNode = _doc.CreateElement("Entitlements", _doc.DocumentElement?.NamespaceURI);
                 iPhoneNode.AppendChild(entitlementsNode);
             }
 
@@ -183,18 +183,18 @@ namespace AIRTools
             XmlNode extensionsNode;
             if (extensionsNodeTest == null)
             {
-                extensionsNode = _doc.CreateElement("extensions", _doc.DocumentElement.NamespaceURI);
-                _doc.DocumentElement.AppendChild(extensionsNode);
+                extensionsNode = _doc.CreateElement("extensions", _doc.DocumentElement?.NamespaceURI);
+                _doc.DocumentElement?.AppendChild(extensionsNode);
             }
 
             extensionsNode = _node["extensions"];
-            extensionsNode.RemoveAll();
+            extensionsNode?.RemoveAll();
             foreach (var extension in extensions)
             {
-                var newNode = _doc.CreateElement("extensionID", _doc.DocumentElement.NamespaceURI);
+                var newNode = _doc.CreateElement("extensionID", _doc.DocumentElement?.NamespaceURI);
                 newNode.InnerText = extension;
                 newNode.Attributes.RemoveAll();
-                extensionsNode.AppendChild(newNode);
+                extensionsNode?.AppendChild(newNode);
             }
 
             _doc.Save(_path);

@@ -43,6 +43,15 @@ namespace AIRTools
 
         private static async Task Main(string[] args)
         {
+            var assembly = typeof(Program).Assembly;
+            var assemblyName = assembly.GetName();
+            var version = assemblyName.Version;
+            var major = version?.Major ?? 0;
+            var minor = version?.Minor ?? 0;
+            var rev = version?.Revision ?? 0;
+            
+            Print($"--- AIR Tools {major}.{minor}.{rev} ---");
+
             if (args.Length == 0)
             {
                 PrintError("Pass the command as an argument");
@@ -120,6 +129,24 @@ namespace AIRTools
                     }
 
                     await AssetsCar.Create(args[1]);
+                    break;
+                case "create-icons":
+                    if (args.Length < 2)
+                    {
+                        PrintError(
+                            "You need to pass the path to the 1024x1024px png file.");
+                        return;
+                    }
+                    
+                    var iconPath = args[1];
+                    string xmlPath = null;
+
+                    if (args.Length == 3)
+                    {
+                        xmlPath = args[2];
+                    }
+
+                    await Icons.Create(iconPath, xmlPath);
                     break;
                 default:
                     PrintError("Command not recognized.");
@@ -645,6 +672,13 @@ namespace AIRTools
         private static void PrintInfo(string message)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+        
+        private static void Print(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(message);
             Console.ResetColor();
         }
