@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Newtonsoft.Json;
@@ -11,6 +12,8 @@ namespace AIRTools
 {
     public static class GoogleServices
     {
+        private const int WebClientType = 3;
+        
         private static XmlDocument _doc;
 
         public static async Task FromJson(string path, bool addToAne = true)
@@ -25,11 +28,11 @@ namespace AIRTools
             var storageBucket = projectInfo["storage_bucket"]?.ToString();
             var client = JArray.FromObject(googleServices["client"]).First;
             var apiKey = JArray.FromObject(client?["api_key"]!).First;
-            var oauthClient = JArray.FromObject(client?["oauth_client"]!).First;
             var clientInfo = JObject.FromObject(client?["client_info"]!);
             var mobilesdkAppId = JObject.FromObject(clientInfo!)["mobilesdk_app_id"]?.ToString();
             var currentKey = JObject.FromObject(apiKey!)["current_key"]?.ToString();
-            var clientId = JObject.FromObject(oauthClient!)["client_id"]?.ToString();
+            var webClient = client?["oauth_client"]!.First(c => (int) c["client_type"] == WebClientType);
+            var webClientId = JObject.FromObject(webClient!)["client_id"]?.ToString();
 
             _doc = new XmlDocument();
             var xmlDeclaration = _doc.CreateXmlDeclaration("1.0", "UTF-8", null);
@@ -48,7 +51,7 @@ namespace AIRTools
             attr2.Value = "default_web_client_id";
             node2.Attributes?.Append(attr2);
             node2.Attributes?.Append(GetTranslatableAttribute());
-            node2.InnerText = clientId ?? string.Empty;
+            node2.InnerText = webClientId ?? string.Empty;
 
             XmlNode node3 = _doc.CreateElement("string");
             node3.InnerText = firebaseUrl ?? string.Empty;
@@ -62,7 +65,7 @@ namespace AIRTools
             var attr4 = _doc.CreateAttribute("name");
             attr4.Value = "gcm_defaultSenderId";
             node4.Attributes?.Append(attr4);
-            node4.Attributes.Append(GetTranslatableAttribute());
+            node4.Attributes?.Append(GetTranslatableAttribute());
 
             XmlNode node5 = _doc.CreateElement("string");
             node5.InnerText = currentKey;
@@ -82,15 +85,15 @@ namespace AIRTools
             node7.InnerText = currentKey;
             var attr7 = _doc.CreateAttribute("name");
             attr7.Value = "google_crash_reporting_api_key";
-            node7.Attributes.Append(attr7);
-            node7.Attributes.Append(GetTranslatableAttribute());
+            node7.Attributes?.Append(attr7);
+            node7.Attributes?.Append(GetTranslatableAttribute());
 
             XmlNode node8 = _doc.CreateElement("string");
             node8.InnerText = storageBucket;
             var attr8 = _doc.CreateAttribute("name");
             attr8.Value = "google_storage_bucket";
-            node8.Attributes.Append(attr8);
-            node8.Attributes.Append(GetTranslatableAttribute());
+            node8.Attributes?.Append(attr8);
+            node8.Attributes?.Append(GetTranslatableAttribute());
 
             XmlNode node9 = _doc.CreateElement("string");
             node9.InnerText = projectId;
